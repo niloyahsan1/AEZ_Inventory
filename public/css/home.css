@@ -1,0 +1,141 @@
+body {
+    font-family: "Inter", sans-serif;
+    background: #f4f6f9;
+    padding: 30px;
+    color: #333;
+}
+h1 {
+    color: #2c3e50;
+    margin-bottom: -20px;
+    margin-top: -10px;
+    font-size: 37px;
+    text-align: center;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 33px;
+    text-align: center;
+}
+
+.total-products {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 16px;
+    min-width: 140px;
+    text-align: center;
+}
+
+input,
+button {
+    font-family: "Inter", sans-serif;
+    margin: 6px;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+th {
+    background: #007bff;
+    color: white;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+th,
+td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+#editModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    width: 400px;
+    max-width: 90%;
+    display: none;
+}
+
+#editModal h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#editModal input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#editModal button {
+    width: 48%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#editModal button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+}
+
+#editModal button[type="button"] {
+    background-color: #dc3545;
+    color: white;
+    float: right;
+    margin-top: -43px;
+}
