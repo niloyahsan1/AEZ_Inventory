@@ -14,6 +14,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Truncate users table to delete all current users
+        \App\Models\User::truncate();
+
+        // Create the admin user
+        \App\Models\User::create([
+            'name' => 'Admin',
+            'email' => 'tonnyclothstore@gmail.com',
+            'password' => \Illuminate\Support\Facades\Hash::make('tonny2812'),
+        ]);
+
         $this->call(ProductSeeder::class);
     }
 }

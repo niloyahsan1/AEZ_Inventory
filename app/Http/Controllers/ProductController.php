@@ -28,14 +28,19 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
-        Product::create($request->all());
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('products', 'public');
+        }
+
+        Product::create($data);
 
         return redirect('/')->with('success', 'Product added.');
     }
@@ -61,15 +66,24 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product, $id)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         $product = Product::findOrFail($id);
-        $product->update($request->all());
+
+        if ($request->hasFile('image')) {
+            if ($product->image_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($data);
 
         return redirect('/')->with('success', 'Product updated.');
     }
@@ -79,7 +93,11 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        Product::findOrFail($id)->delete();
+        $product = Product::findOrFail($id);
+        if ($product->image_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image_path);
+        }
+        $product->delete();
         return redirect('/')->with('success', 'Product deleted.');
     }
 }
