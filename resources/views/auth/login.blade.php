@@ -17,6 +17,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            font-size: 16px;
         }
 
         .login-container {
@@ -49,7 +50,7 @@
         .login-card h2 {
             margin: 0;
             color: #122b49;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
@@ -57,7 +58,7 @@
         .login-card p.subtitle {
             margin: 6px 0 0 0;
             color: #ad915a;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
         }
 
@@ -70,7 +71,7 @@
         .form-group label {
             display: block;
             margin-bottom: 6px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: #2e3e52;
         }
@@ -98,7 +99,7 @@
             padding: 12px 14px 12px 42px;
             border: 1px solid #dcd7ca;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             outline: none;
             transition: all 0.15s ease-in-out;
             background: #faf8f3;
@@ -116,7 +117,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 24px;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .remember-me {
@@ -140,7 +141,7 @@
             padding: 12px 18px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.15s ease-in-out;
             background-color: #122b49;
@@ -155,7 +156,7 @@
 
         .register-link {
             margin-top: 24px;
-            font-size: 13px;
+            font-size: 14px;
             color: #5c503b;
         }
 
@@ -177,7 +178,7 @@
             border-radius: 8px;
             padding: 12px 14px;
             margin-bottom: 20px;
-            font-size: 13px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;

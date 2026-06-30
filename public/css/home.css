@@ -5,10 +5,11 @@ body {
     margin: 0;
     padding: 40px 20px;
     color: #2e3e52;
+    font-size: 16px;
 }
 
 .app-container {
-    max-width: 1100px;
+    max-width: 1450px;
     margin: 0 auto;
 }
 
@@ -23,7 +24,7 @@ body {
 }
 
 .header-title-group h1 {
-    font-size: 32px;
+    font-size: 36px;
     color: #122b49;
     margin: 0;
     font-weight: 700;
@@ -33,7 +34,7 @@ body {
 .header-title-group .subtitle {
     margin: 4px 0 0 0;
     color: #bfa36b;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 500;
 }
 
@@ -43,7 +44,7 @@ body {
     padding: 8px 16px;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -55,7 +56,7 @@ body {
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 /* Cards */
@@ -72,7 +73,7 @@ body {
     margin-top: 0;
     margin-bottom: 20px;
     color: #122b49;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
 }
 
@@ -96,14 +97,15 @@ body {
 
 input[type="text"],
 input[type="number"],
-input[type="file"] {
+input[type="file"],
+select {
     width: 100%;
     box-sizing: border-box;
     font-family: "Inter", sans-serif;
     padding: 10px 14px;
     border: 1px solid #dcd7ca;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     transition: all 0.15s ease-in-out;
     background: #faf8f3;
@@ -125,7 +127,7 @@ input[type="number"]:focus {
     border-radius: 8px;
     background: #fdfcf7;
     color: #ad915a;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     transition: all 0.15s ease-in-out;
     text-align: center;
@@ -149,7 +151,7 @@ button {
     padding: 10px 18px;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.15s ease-in-out;
 }
@@ -230,7 +232,7 @@ th {
     color: #5c503b;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.05em;
     padding: 14px 18px;
     border-bottom: 2px solid #e5e0d4;
@@ -239,7 +241,7 @@ th {
 td {
     padding: 14px 18px;
     border-bottom: 1px solid #f5f1e6;
-    font-size: 14px;
+    font-size: 16px;
     color: #334155;
     vertical-align: middle;
 }
@@ -281,7 +283,7 @@ tr:hover td {
     margin-top: 0;
     margin-bottom: 20px;
     color: #122b49;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 600;
     text-align: center;
 }
@@ -292,7 +294,7 @@ tr:hover td {
 
 #editModal label {
     display: block;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 500;
     color: #5c503b;
     margin-bottom: 6px;
@@ -569,5 +571,20 @@ tr:hover td {
         top: 20px;
         right: 20px;
         font-size: 35px;
+    }
+}
+
+/* Forms layout grids */
+.forms-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1024px) {
+    .forms-grid {
+        grid-template-columns: 1fr;
     }
 }

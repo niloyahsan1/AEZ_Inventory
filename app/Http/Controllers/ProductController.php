@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,7 +13,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('products.index', ['products' => Product::all()]);
+        $categories = Category::with('products')->get();
+        $products = Product::all();
+        return view('products.index', compact('categories', 'products'));
     }
 
     /**
@@ -33,6 +36,7 @@ class ProductController extends Controller
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
+            'category_id' => 'required|integer|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
@@ -71,6 +75,7 @@ class ProductController extends Controller
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
+            'category_id' => 'required|integer|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
