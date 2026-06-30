@@ -588,3 +588,96 @@ tr:hover td {
         grid-template-columns: 1fr;
     }
 }
+
+/* Folder Metaphor Layout */
+.folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.folder-card {
+    background: #ffffff;
+    border: 1px solid #e5e0d4;
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 4px 6px -1px rgba(18, 43, 73, 0.03), 0 2px 4px -1px rgba(18, 43, 73, 0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+}
+
+.folder-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(191, 163, 107, 0.25), 0 4px 8px -2px rgba(18, 43, 73, 0.05);
+    border-color: #bfa36b;
+}
+
+.folder-card.active {
+    background: #fdfaf2;
+    border-color: #bfa36b;
+    box-shadow: inset 0 0 0 1px #bfa36b, 0 4px 10px rgba(191, 163, 107, 0.15);
+}
+
+.folder-icon {
+    width: 64px;
+    height: 64px;
+    color: #ad915a;
+    margin-bottom: 12px;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.folder-card:hover .folder-icon {
+    transform: scale(1.1);
+}
+
+.folder-card.active .folder-icon {
+    color: #bfa36b;
+}
+
+.folder-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #122b49;
+    margin: 0 0 6px 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.folder-meta {
+    font-size: 14px;
+    color: #5c503b;
+    font-weight: 500;
+    margin: 0;
+}
+
+.folder-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.folder-card:hover .folder-actions {
+    opacity: 1;
+}
+
+.folder-card.add-folder-btn:hover {
+    border-color: #ad915a;
+    background: #faf8f3;
+}
+
+.active-category-container {
+    transition: all 0.3s ease-in-out;
+}

@@ -11,11 +11,35 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('products')->get();
-        $products = Product::all();
-        return view('products.index', compact('categories', 'products'));
+        $currentCategoryId = $request->query('category_id');
+
+        if ($currentCategoryId) {
+            $currentCategory = Category::with(['children', 'products', 'parent'])->findOrFail($currentCategoryId);
+            $categories = $currentCategory->children;
+            $products = $currentCategory->products;
+
+            // Generate breadcrumbs by traversing parent categories upwards
+            $breadcrumbs = [];
+            $temp = $currentCategory;
+            while ($temp) {
+                array_unshift($breadcrumbs, $temp);
+                $temp = $temp->parent;
+            }
+        } else {
+            $currentCategory = null;
+            // Retrieve only the categories that have NO parent (root level)
+            $categories = Category::whereNull('parent_id')->with('products')->get();
+            $products = collect(); // no products directly at the root level
+            $breadcrumbs = [];
+        }
+
+        // Calculate total quantities of all products for the header badge
+        $allProductsSum = Product::sum('quantity');
+        $allCategories = Category::all();
+
+        return view('products.index', compact('categories', 'products', 'currentCategory', 'breadcrumbs', 'allProductsSum', 'allCategories'));
     }
 
     /**
@@ -32,7 +56,6 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
@@ -46,7 +69,7 @@ class ProductController extends Controller
 
         Product::create($data);
 
-        return redirect('/')->with('success', 'Product added.');
+        return redirect('/?category_id=' . $request->category_id)->with('success', 'Product added.');
     }
 
     /**
@@ -71,7 +94,6 @@ class ProductController extends Controller
     public function update(Request $request, Product $product, $id)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
             'buying_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
@@ -90,7 +112,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return redirect('/')->with('success', 'Product updated.');
+        return redirect('/?category_id=' . $request->category_id)->with('success', 'Product updated.');
     }
 
     /**
@@ -99,10 +121,13 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        $categoryId = $product->category_id;
+        
         if ($product->image_path) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image_path);
         }
         $product->delete();
-        return redirect('/')->with('success', 'Product deleted.');
+        
+        return redirect('/?category_id=' . $categoryId)->with('success', 'Product deleted.');
     }
 }

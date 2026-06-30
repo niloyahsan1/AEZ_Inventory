@@ -49,7 +49,7 @@
         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <div class="total-products-badge">
                 <span>Total Product Count</span>
-                <span class="badge-count">{{ $products->sum('quantity') }}</span>
+                <span class="badge-count">{{ $allProductsSum }}</span>
             </div>
             @auth
             <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 16px; border-radius: 20px; border: 1px solid #e5e0d4; font-size: 14px; font-weight: 600; color: #122b49; box-shadow: 0 1px 3px rgba(18, 43, 73, 0.02);">
@@ -68,147 +68,225 @@
         </div>
     </header>
 
-    <!-- Side-by-side forms grid -->
-    <div class="forms-grid">
-        <!-- Card: Add Product -->
-        <div class="card">
-            <h3>Add New Product</h3>
-            <form method="POST" action="/products" enctype="multipart/form-data" class="form-grid">
-                @csrf
-                <div class="form-group">
-                    <input type="text" name="name" placeholder="Product Name" required>
-                </div>
-                <div class="form-group">
-                    <select name="category_id" required>
-                        <option value="" disabled selected>Select Category</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="number" step="any" name="buying_price" placeholder="Buying Price (BDT)" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" step="any" name="selling_price" placeholder="Selling Price (BDT)" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" name="quantity" placeholder="Quantity" required>
-                </div>
-                <div class="form-group file-group">
-                    <label class="custom-file-upload">
-                        <input type="file" name="image" accept="image/*" id="productImageInput" onchange="updateFileName(this)">
-                        <span class="file-upload-text">
-                            <svg style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span id="file-upload-name">Add Photo</span>
-                        </span>
-                    </label>
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Add Product</button>
-            </form>
-        </div>
+    <!-- Breadcrumb Explorer Trail -->
+    <div style="margin-bottom: 20px; font-size: 16px; font-weight: 500; color: #5c503b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <a href="/" style="color: #122b49; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 600;">
+            <svg style="width: 18px; height: 18px; color: #ad915a;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            Home
+        </a>
+        @foreach($breadcrumbs as $crumb)
+            <span style="color: #dcd7ca;">/</span>
+            <a href="/?category_id={{ $crumb->id }}" style="color: #122b49; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <svg style="width: 16px; height: 16px; color: #bfa36b;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path></svg>
+                {{ $crumb->name }}
+            </a>
+        @endforeach
+    </div>
 
-        <!-- Card: Manage Categories -->
-        <div class="card">
-            <h3>Manage Categories</h3>
-            <form method="POST" action="/categories" class="form-grid" style="margin-bottom: 16px;">
-                @csrf
-                <div class="form-group" style="flex: 2; min-width: 140px;">
-                    <input type="text" name="name" placeholder="Category Name (e.g. Tshirt)" required>
+    <!-- Folder Grid -->
+    <div style="margin-bottom: 12px;">
+        <h2 style="margin: 0; color: #122b49; font-size: 20px; font-weight: 700;">Folders (Categories)</h2>
+    </div>
+    
+    <div class="folder-grid">
+        @foreach($categories as $category)
+            <div class="folder-card" id="folder-card-{{ $category->id }}" onclick="window.location.href='/?category_id={{ $category->id }}'">
+                <svg class="folder-icon" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4z" clip-rule="evenodd"></path></svg>
+                <div class="folder-name">{{ $category->name }}</div>
+                <div class="folder-meta">{{ $category->totalProductsQuantity() }} pcs</div>
+                
+                <div class="folder-actions">
+                    <button type="button" class="btn-edit" style="padding: 4px 6px; font-size: 11px; border-radius: 4px; width: auto;" onclick="event.stopPropagation(); openEditCategoryModal({{ $category->id }}, '{{ addslashes($category->name) }}')">Rename</button>
+                    <button type="button" class="btn-delete" style="padding: 4px 6px; font-size: 11px; border-radius: 4px; width: auto;" onclick="event.stopPropagation(); openDeleteCategoryModal({{ $category->id }}, '{{ addslashes($category->name) }}')">Delete</button>
                 </div>
-                <button type="submit" class="btn-primary" style="flex: 1;">Add</button>
-            </form>
-            
-            <div style="max-height: 180px; overflow-y: auto; border: 1px solid #e5e0d4; border-radius: 8px; padding: 10px; background: #faf8f3;">
-                @if($categories->isEmpty())
-                    <span style="font-size: 14px; color: #5c503b; font-style: italic;">No categories created.</span>
-                @else
-                    @foreach($categories as $category)
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e5e0d4; gap: 10px;">
-                            <span style="font-size: 15px; font-weight: 600; color: #122b49;">{{ $category->name }}</span>
-                            <div style="display: flex; gap: 4px;">
-                                <button type="button" class="btn-edit" style="padding: 4px 8px; font-size: 12px; border-radius: 4px; width: auto;" onclick='openEditCategoryModal(@json($category))'>Edit</button>
-                                <button type="button" class="btn-delete" style="padding: 4px 8px; font-size: 12px; border-radius: 4px; width: auto;" onclick='openDeleteCategoryModal(@json($category))'>Delete</button>
-                            </div>
-                        </div>
-                    @endforeach
-                @endif
+            </div>
+        @endforeach
+
+        <!-- Add Category Card -->
+        <div class="folder-card add-folder-btn" onclick="openAddCategoryModal()" style="border: 2px dashed #bfa36b; background: transparent; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 140px; box-sizing: border-box; padding: 20px;">
+            <svg style="width: 44px; height: 44px; color: #bfa36b; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span style="font-weight: 600; color: #bfa36b; font-size: 15px;">New Category</span>
+        </div>
+    </div>
+
+    <!-- Active Category Products Explorer -->
+    @if($currentCategory)
+        <div class="card active-category-container" id="category-container-{{ $currentCategory->id }}">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #f5f1e6;">
+                <h3 style="margin: 0; color: #122b49; display: flex; align-items: center; gap: 10px;">
+                    <svg style="width: 24px; height: 24px; color: #bfa36b;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4z" clip-rule="evenodd"></path></svg>
+                    <span>Folder: {{ $currentCategory->name }}</span>
+                    <span style="font-size: 14px; font-weight: 600; color: #bfa36b; background: #f5f1e6; padding: 2px 10px; border-radius: 12px; border: 1px solid #e5e0d4;">
+                        {{ $currentCategory->products->sum('quantity') }} pcs ({{ $currentCategory->products->count() }} items)
+                    </span>
+                </h3>
+                
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn-primary" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px;" onclick="openAddProductModal({{ $currentCategory->id }}, '{{ addslashes($currentCategory->name) }}')">
+                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Product
+                    </button>
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="text" class="category-search" data-category-id="{{ $currentCategory->id }}" placeholder="Search products..." onkeyup="filterTable(this)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="product-table" id="product-table-{{ $currentCategory->id }}">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">SL</th>
+                            <th>Image</th>
+                            <th>Buying Price (BDT)</th>
+                            <th>Selling Price (BDT)</th>
+                            <th>Qty</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if($products->isEmpty())
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #5c503b; font-style: italic; padding: 30px;">No products in this category folder. Click 'Add Product' to add one.</td>
+                            </tr>
+                        @else
+                            @foreach($products as $index => $product)
+                            <tr>
+                                <td style="font-weight: 600; color: #bfa36b;">{{ $index + 1 }}</td>
+                                <td>
+                                    @if($product->image_path)
+                                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $currentCategory->name }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e0d4; display: block;" class="product-thumbnail" onclick="openLightbox('{{ asset('storage/' . $product->image_path) }}')">
+                                    @else
+                                        <div style="width: 52px; height: 52px; background: #f5f1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #bfa36b; font-size: 11px; font-weight: 500; border: 1px dashed #e5e0d4;">No Image</div>
+                                    @endif
+                                </td>
+                                <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->buying_price, 2) }}</td>
+                                <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->selling_price, 2) }}</td>
+                                <td>
+                                    <span style="display: inline-block; padding: 2px 8px; background: #f5f1e6; border-radius: 6px; font-weight: 500; color: #5c503b;">{{ $product->quantity }} pcs</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <button class="btn-edit" onclick="openEditModal({{ $product->id }}, {{ $product->buying_price }}, {{ $product->selling_price }}, {{ $product->quantity }}, {{ $product->category_id }}, '{{ $product->image_path }}')">Edit</button>
+                                    <button class="btn-delete" onclick="openDeleteModal({{ $product->id }})">Delete</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
-
-    <!-- Search Box for Products -->
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
-        <div class="search-box">
-            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" id="search" placeholder="Search products..." onkeyup="filterTable()">
+    @elseif($categories->isEmpty())
+        <!-- Nothing at Root Explorer -->
+        <div class="card" style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: white;">
+            <svg style="width: 64px; height: 64px; color: #bfa36b; margin: 0 auto 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            <h3 style="margin: 0 0 8px 0; color: #122b49; font-size: 18px;">Welcome to Tonny Cloth Store Explorer</h3>
+            <p style="margin: 0 0 20px 0; color: #5c503b; font-size: 15px;">Create a folder category (like "থ্রি পিছ") to begin adding items.</p>
+            <button class="btn-primary" onclick="openAddCategoryModal()">+ Add Category Folder</button>
         </div>
-    </div>
-
-    <!-- Card: Inventory List Grouped by Category -->
-    @foreach($categories as $category)
-    <div class="card category-card" style="padding-bottom: 10px;">
-        <div class="table-header-row">
-            <h3 style="margin: 0; display: flex; align-items: center; gap: 12px; color: #122b49;">
-                <span>{{ $category->name }}</span>
-                <span style="font-size: 14px; font-weight: 500; color: #bfa36b; background: #f5f1e6; padding: 2px 10px; border-radius: 12px; border: 1px solid #e5e0d4;">
-                    {{ $category->products->sum('quantity') }} pcs ({{ $category->products->count() }} items)
-                </span>
-            </h3>
+    @else
+        <!-- Welcome Prompt to open a folder -->
+        <div style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: #faf8f3;">
+            <svg style="width: 48px; height: 48px; color: #ad915a; margin: 0 auto 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5M5 19v-4m14 4v-5m0 0l-5-5m5 5H9"></path></svg>
+            <h4 style="margin: 0; color: #122b49; font-size: 16px; font-weight: 600;">Double-click or Tap a folder category above to open its contents and manage products.</h4>
         </div>
-
-        <div class="table-responsive">
-            <table class="product-table">
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">SL</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Buying Price (BDT)</th>
-                        <th>Selling Price (BDT)</th>
-                        <th>Qty</th>
-                        <th style="text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($category->products->isEmpty())
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: #5c503b; font-style: italic; padding: 20px;">No products in this category.</td>
-                        </tr>
-                    @else
-                        @foreach($category->products as $index => $product)
-                        <tr>
-                            <td style="font-weight: 600; color: #bfa36b;">{{ $index + 1 }}</td>
-                            <td>
-                                @if($product->image_path)
-                                    <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e0d4; display: block;" class="product-thumbnail" onclick="openLightbox('{{ asset('storage/' . $product->image_path) }}')">
-                                @else
-                                    <div style="width: 52px; height: 52px; background: #f5f1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #bfa36b; font-size: 11px; font-weight: 500; border: 1px dashed #e5e0d4;">No Image</div>
-                                @endif
-                            </td>
-                            <td style="font-weight: 600; color: #122b49;">{{ e($product->name) }}</td>
-                            <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->buying_price, 2) }}</td>
-                            <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->selling_price, 2) }}</td>
-                            <td>
-                                <span style="display: inline-block; padding: 2px 8px; background: #f5f1e6; border-radius: 6px; font-weight: 500; color: #5c503b;">{{ $product->quantity }} pcs</span>
-                            </td>
-                            <td style="text-align: right;">
-                                <button class="btn-edit" onclick='openEditModal(@json($product))'>Edit</button>
-                                <button class="btn-delete" onclick='openDeleteModal(@json($product))'>Delete</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @endforeach
+    @endif
 </div>
 
 <!-- Modal Overlay & Modal Box -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+<div class="modal-overlay" id="modalOverlay"></div>
 
+<!-- Add Category Modal -->
+<div id="addCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
+    <h3 style="margin-top: 0; margin-bottom: 20px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Add New Category (Folder)</h3>
+    <form method="POST" action="/categories">
+        @csrf
+        <input type="hidden" name="parent_id" value="{{ $currentCategory ? $currentCategory->id : '' }}">
+        
+        <div class="form-group">
+            <label for="newCategoryName">Category Name</label>
+            <input type="text" name="name" id="newCategoryName" placeholder="e.g. Tshirt" required>
+        </div>
+        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn-delete" style="background-color: #f5f1e6; color: #122b49;" onclick="closeAddCategoryModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Add Category</button>
+        </div>
+    </form>
+</div>
+
+<!-- Edit Category Modal -->
+<div id="editCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
+    <h3 style="margin-top: 0; margin-bottom: 20px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Rename Category Folder</h3>
+    <form id="editCategoryForm" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group">
+            <label for="editCategoryName">Category Name</label>
+            <input type="text" name="name" id="editCategoryName" required>
+        </div>
+        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn-delete" style="background-color: #f5f1e6; color: #122b49;" onclick="closeEditCategoryModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Category Modal -->
+<div id="deleteCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Confirm Delete Folder</h3>
+    <p style="text-align: center; color: #2e3e52; font-size: 15px; margin-bottom: 24px;">Are you sure you want to delete category folder <strong id="deleteCategoryName" style="color: #122b49;"></strong>?<br><span style="color: #ef4444; font-size: 13px; font-weight: 600;">Warning: All subfolders and products inside will also be deleted!</span></p>
+    <form id="deleteCategoryForm" method="POST" style="margin: 0;">
+        @csrf
+        @method('DELETE')
+        <div class="modal-actions" style="display: flex; justify-content: center; gap: 12px;">
+            <button type="button" class="btn-edit" style="background-color: #f5f1e6; color: #122b49; margin: 0;" onclick="closeDeleteCategoryModal()">Cancel</button>
+            <button type="submit" class="btn-delete" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; margin: 0;">Delete Category</button>
+        </div>
+    </form>
+</div>
+
+<!-- Add Product Modal -->
+<div id="addProductModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 450px; max-width: 90%; border: 1px solid #e5e0d4;">
+    <h3 style="margin-top: 0; margin-bottom: 20px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Add Product to Folder</h3>
+    <form method="POST" action="/products" enctype="multipart/form-data">
+        @csrf
+        <input type="hidden" name="category_id" id="addProductCategoryId">
+        
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Folder Name</label>
+            <input type="text" id="addProductCategoryNameDisplay" disabled style="width: 100%; box-sizing: border-box; padding: 10px 14px; background: #e5e0d4; border-radius: 8px; font-weight: 600; color: #122b49; border: 1px solid #dcd7ca; font-size: 16px;">
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label for="addBuyingPrice" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Buying Price (BDT)</label>
+            <input type="number" step="any" name="buying_price" placeholder="Buying Price (BDT)" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label for="addSellingPrice" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Selling Price (BDT)</label>
+            <input type="number" step="any" name="selling_price" placeholder="Selling Price (BDT)" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label for="addQuantity" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Quantity</label>
+            <input type="number" name="quantity" placeholder="Quantity" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Add Photo (Optional)</label>
+            <label class="custom-file-upload">
+                <input type="file" name="image" accept="image/*" onchange="updateAddFileName(this)">
+                <span class="file-upload-text">
+                    <svg style="width: 16px; height: 16px; margin-right: 4px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span id="add-file-upload-name">Add Photo</span>
+                </span>
+            </label>
+        </div>
+        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn-delete" style="background-color: #f5f1e6; color: #122b49;" onclick="closeAddProductModal()">Cancel</button>
+            <button type="submit" class="btn-primary">Add Product</button>
+        </div>
+    </form>
+</div>
+
+<!-- Edit Product Modal (Allows moving to other folder) -->
 <div id="editModal">
     <h3>Edit Product Details</h3>
     <form id="editForm" method="POST" enctype="multipart/form-data">
@@ -221,15 +299,10 @@
         </div>
 
         <div class="form-group">
-            <label for="editName">Product Name</label>
-            <input type="text" name="name" id="editName" required>
-        </div>
-
-        <div class="form-group">
-            <label for="editCategory">Category</label>
+            <label for="editCategory">Move to Category Folder</label>
             <select name="category_id" id="editCategory" required>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @foreach($allCategories as $cat)
+                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -269,8 +342,8 @@
 
 <!-- Custom Delete Confirmation Modal -->
 <div id="deleteModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
-    <h3 style="margin-top: 0; margin-bottom: 16px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Confirm Delete</h3>
-    <p style="text-align: center; color: #2e3e52; font-size: 14px; margin-bottom: 24px;">Are you sure you want to delete <strong id="deleteProductName" style="color: #122b49;"></strong>?</p>
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Confirm Delete Product</h3>
+    <p style="text-align: center; color: #2e3e52; font-size: 14px; margin-bottom: 24px;">Are you sure you want to delete this product?</p>
     
     <form id="deleteForm" method="POST" style="margin: 0;">
         @csrf
@@ -282,37 +355,6 @@
     </form>
 </div>
 
-<!-- Edit Category Modal -->
-<div id="editCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
-    <h3 style="margin-top: 0; margin-bottom: 20px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Edit Category</h3>
-    <form id="editCategoryForm" method="POST">
-        @csrf
-        @method('PUT')
-        <div class="form-group">
-            <label for="editCategoryName">Category Name</label>
-            <input type="text" name="name" id="editCategoryName" required>
-        </div>
-        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="button" class="btn-delete" style="background-color: #f5f1e6; color: #122b49;" onclick="closeEditCategoryModal()">Cancel</button>
-            <button type="submit" class="btn-primary">Save Changes</button>
-        </div>
-    </form>
-</div>
-
-<!-- Delete Category Modal -->
-<div id="deleteCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(18, 43, 73, 0.1), 0 10px 10px -5px rgba(18, 43, 73, 0.04); z-index: 1000; width: 400px; max-width: 90%; border: 1px solid #e5e0d4;">
-    <h3 style="margin-top: 0; margin-bottom: 16px; color: #122b49; font-size: 20px; font-weight: 600; text-align: center;">Confirm Delete Category</h3>
-    <p style="text-align: center; color: #2e3e52; font-size: 15px; margin-bottom: 24px;">Are you sure you want to delete category <strong id="deleteCategoryName" style="color: #122b49;"></strong>?<br><span style="color: #ef4444; font-size: 13px; font-weight: 600;">Warning: All products in this category will also be deleted!</span></p>
-    <form id="deleteCategoryForm" method="POST" style="margin: 0;">
-        @csrf
-        @method('DELETE')
-        <div class="modal-actions" style="display: flex; justify-content: center; gap: 12px;">
-            <button type="button" class="btn-edit" style="background-color: #f5f1e6; color: #122b49; margin: 0;" onclick="closeDeleteCategoryModal()">Cancel</button>
-            <button type="submit" class="btn-delete" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; margin: 0;">Delete Category</button>
-        </div>
-    </form>
-</div>
-
 <!-- Lightbox Modal -->
 <div id="imageLightbox" class="lightbox" onclick="closeLightbox()">
     <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
@@ -320,29 +362,21 @@
 </div>
 
 <script>
-function filterTable() {
-    let input = document.getElementById("search").value.toLowerCase();
-    let rows = document.querySelectorAll(".product-table tbody tr");
+// Function to filter products inside active tables
+function filterTable(inputElement) {
+    let input = inputElement.value.toLowerCase();
+    let categoryId = inputElement.getAttribute("data-category-id");
+    let rows = document.querySelectorAll(`#product-table-${categoryId} tbody tr`);
+    
     rows.forEach(row => {
         if(row.cells.length > 1) {
             row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
         }
     });
-
-    document.querySelectorAll(".category-card").forEach(card => {
-        let rows = Array.from(card.querySelectorAll(".product-table tbody tr"));
-        let hasProducts = rows.length > 0 && !rows[0].innerText.includes("No products");
-        if (hasProducts) {
-            let visibleRows = rows.filter(r => r.style.display !== 'none');
-            card.style.display = (visibleRows.length === 0 && input !== '') ? 'none' : '';
-        } else {
-            card.style.display = (input !== '') ? 'none' : '';
-        }
-    });
 }
 
-function updateFileName(input) {
-    const label = document.getElementById("file-upload-name");
+function updateAddFileName(input) {
+    const label = document.getElementById("add-file-upload-name");
     if (input.files && input.files.length > 0) {
         label.innerText = input.files[0].name;
     } else {
@@ -359,22 +393,68 @@ function updateEditFileName(input) {
     }
 }
 
-function openEditModal(product) {
+function openAddCategoryModal() {
+    document.getElementById("modalOverlay").style.display = "block";
+    document.getElementById("addCategoryModal").style.display = "block";
+}
+
+function closeAddCategoryModal() {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("addCategoryModal").style.display = "none";
+}
+
+function openEditCategoryModal(id, name) {
+    document.getElementById("modalOverlay").style.display = "block";
+    document.getElementById("editCategoryModal").style.display = "block";
+    document.getElementById("editCategoryName").value = name;
+    document.getElementById("editCategoryForm").action = `/categories/${id}`;
+}
+
+function closeEditCategoryModal() {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("editCategoryModal").style.display = "none";
+}
+
+function openDeleteCategoryModal(id, name) {
+    document.getElementById("modalOverlay").style.display = "block";
+    document.getElementById("deleteCategoryModal").style.display = "block";
+    document.getElementById("deleteCategoryName").innerText = name;
+    document.getElementById("deleteCategoryForm").action = `/categories/${id}`;
+}
+
+function closeDeleteCategoryModal() {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("deleteCategoryModal").style.display = "none";
+}
+
+function openAddProductModal(categoryId, categoryName) {
+    document.getElementById("modalOverlay").style.display = "block";
+    document.getElementById("addProductModal").style.display = "block";
+    document.getElementById("addProductCategoryId").value = categoryId;
+    document.getElementById("addProductCategoryNameDisplay").value = categoryName;
+    document.getElementById("add-file-upload-name").innerText = "Add Photo";
+}
+
+function closeAddProductModal() {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("addProductModal").style.display = "none";
+}
+
+function openEditModal(id, buyingPrice, sellingPrice, quantity, categoryId, imagePath) {
     document.getElementById("modalOverlay").style.display = "block";
     document.getElementById("editModal").style.display = "block";
-    document.getElementById("editName").value = product.name;
-    document.getElementById("editBuyingPrice").value = product.buying_price;
-    document.getElementById("editSellingPrice").value = product.selling_price;
-    document.getElementById("editQuantity").value = product.quantity;
-    document.getElementById("editCategory").value = product.category_id;
-    document.getElementById("editForm").action = `/products/${product.id}`;
+    document.getElementById("editBuyingPrice").value = buyingPrice;
+    document.getElementById("editSellingPrice").value = sellingPrice;
+    document.getElementById("editQuantity").value = quantity;
+    document.getElementById("editCategory").value = categoryId;
+    document.getElementById("editForm").action = `/products/${id}`;
     
     document.getElementById("editImage").value = "";
     document.getElementById("edit-file-upload-name").innerText = "Change Photo";
     const preview = document.getElementById("editImagePreview");
     const noImageText = document.getElementById("editNoImageText");
-    if (product.image_path) {
-        preview.src = `/storage/${product.image_path}`;
+    if (imagePath) {
+        preview.src = `/storage/${imagePath}`;
         preview.style.display = "block";
         noImageText.style.display = "none";
     } else {
@@ -384,59 +464,54 @@ function openEditModal(product) {
     }
 }
 
-function closeAllModals() {
-    document.getElementById("modalOverlay").style.display = "none";
-    document.getElementById("editModal").style.display = "none";
-    
-    const deleteModal = document.getElementById("deleteModal");
-    if (deleteModal) deleteModal.style.display = "none";
-
-    const editCatModal = document.getElementById("editCategoryModal");
-    if (editCatModal) editCatModal.style.display = "none";
-
-    const deleteCatModal = document.getElementById("deleteCategoryModal");
-    if (deleteCatModal) deleteCatModal.style.display = "none";
-}
-
-// Ensure overlay click closes all modals
-document.getElementById("modalOverlay").addEventListener("click", closeAllModals);
-
 function closeEditModal() {
     closeAllModals();
 }
 
-function openDeleteModal(product) {
+// Ensure active folder remains visually highlighted on load
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const activeId = params.get('category_id');
+    if (activeId) {
+        const card = document.getElementById(`folder-card-${activeId}`);
+        if (card) {
+            card.classList.add('active');
+        }
+    }
+});
+
+function openDeleteModal(id) {
     document.getElementById("modalOverlay").style.display = "block";
     document.getElementById("deleteModal").style.display = "block";
-    document.getElementById("deleteProductName").innerText = product.name;
-    document.getElementById("deleteForm").action = `/products/${product.id}`;
+    document.getElementById("deleteForm").action = `/products/${id}`;
 }
 
 function closeDeleteModal() {
     closeAllModals();
 }
 
-function openEditCategoryModal(category) {
-    document.getElementById("modalOverlay").style.display = "block";
-    document.getElementById("editCategoryModal").style.display = "block";
-    document.getElementById("editCategoryName").value = category.name;
-    document.getElementById("editCategoryForm").action = `/categories/${category.id}`;
+function closeAllModals() {
+    document.getElementById("modalOverlay").style.display = "none";
+    document.getElementById("editModal").style.display = "none";
+    
+    const addCatModal = document.getElementById("addCategoryModal");
+    if (addCatModal) addCatModal.style.display = "none";
+
+    const editCatModal = document.getElementById("editCategoryModal");
+    if (editCatModal) editCatModal.style.display = "none";
+
+    const deleteCatModal = document.getElementById("deleteCategoryModal");
+    if (deleteCatModal) deleteCatModal.style.display = "none";
+
+    const addProdModal = document.getElementById("addProductModal");
+    if (addProdModal) addProdModal.style.display = "none";
+
+    const deleteProdModal = document.getElementById("deleteModal");
+    if (deleteProdModal) deleteProdModal.style.display = "none";
 }
 
-function closeEditCategoryModal() {
-    closeAllModals();
-}
-
-function openDeleteCategoryModal(category) {
-    document.getElementById("modalOverlay").style.display = "block";
-    document.getElementById("deleteCategoryModal").style.display = "block";
-    document.getElementById("deleteCategoryName").innerText = category.name;
-    document.getElementById("deleteCategoryForm").action = `/categories/${category.id}`;
-}
-
-function closeDeleteCategoryModal() {
-    closeAllModals();
-}
+// Overlay click closes modals
+document.getElementById("modalOverlay").addEventListener("click", closeAllModals);
 
 function closeToast(id) {
     const toast = document.getElementById(id);
