@@ -236,6 +236,7 @@ th {
     letter-spacing: 0.05em;
     padding: 14px 18px;
     border-bottom: 2px solid #e5e0d4;
+    text-align: center;
 }
 
 td {
@@ -244,6 +245,7 @@ td {
     font-size: 16px;
     color: #334155;
     vertical-align: middle;
+    text-align: center;
 }
 
 tr:hover td {
@@ -410,6 +412,7 @@ tr:hover td {
         transform: translateX(120%);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -421,6 +424,7 @@ tr:hover td {
         transform: translateX(0);
         opacity: 1;
     }
+
     to {
         transform: translateX(120%);
         opacity: 0;
@@ -431,6 +435,7 @@ tr:hover td {
     from {
         width: 100%;
     }
+
     to {
         width: 0%;
     }
@@ -441,38 +446,39 @@ tr:hover td {
     body {
         padding: 20px 10px;
     }
-    
+
     .app-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
     }
-    
+
     .total-products-badge {
         align-self: stretch;
         justify-content: space-between;
     }
-    
+
     .form-grid {
         flex-direction: column;
         align-items: stretch;
     }
-    
-    .form-group, .form-group.file-group {
+
+    .form-group,
+    .form-group.file-group {
         width: 100%;
     }
-    
+
     .card {
         padding: 16px;
         border-radius: 8px;
     }
-    
+
     .table-header-row {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
     }
-    
+
     .search-box {
         width: 100%;
     }
@@ -482,14 +488,14 @@ tr:hover td {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
+
     .toast-container {
         top: 10px;
         right: 10px;
         left: 10px;
         width: auto;
     }
-    
+
     .toast {
         min-width: 0;
         width: 100%;
@@ -502,6 +508,7 @@ tr:hover td {
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
 }
+
 .product-thumbnail:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 8px rgba(18, 43, 73, 0.15);
@@ -567,6 +574,7 @@ tr:hover td {
         max-width: 95%;
         max-height: 70%;
     }
+
     .lightbox-close {
         top: 20px;
         right: 20px;

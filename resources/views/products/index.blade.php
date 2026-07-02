@@ -51,6 +51,10 @@
                 <span>Total Product Count</span>
                 <span class="badge-count">{{ $allProductsSum }}</span>
             </div>
+            <div class="total-products-badge total-buying-price-badge">
+                <span>Total Buying Price</span>
+                <span class="badge-count">৳{{ number_format($totalBuyingPriceSum, 2) }}</span>
+            </div>
             @auth
             <div style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 8px 16px; border-radius: 20px; border: 1px solid #e5e0d4; font-size: 14px; font-weight: 600; color: #122b49; box-shadow: 0 1px 3px rgba(18, 43, 73, 0.02);">
                 <svg style="width: 16px; height: 16px; color: #ad915a; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -68,8 +72,16 @@
         </div>
     </header>
 
+    <!-- Global Search Input (Searches across all folders) -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+        <div class="search-box" style="width: 320px;">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="global-search" placeholder="Search product folder or size..." onkeyup="performGlobalSearch(this)">
+        </div>
+    </div>
+
     <!-- Breadcrumb Explorer Trail -->
-    <div style="margin-bottom: 20px; font-size: 16px; font-weight: 500; color: #5c503b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <div id="breadcrumb-navigation" style="margin-bottom: 20px; font-size: 16px; font-weight: 500; color: #5c503b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
         <a href="/" style="color: #122b49; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 600;">
             <svg style="width: 18px; height: 18px; color: #ad915a;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             Home
@@ -83,11 +95,12 @@
         @endforeach
     </div>
 
-    <!-- Folder Grid -->
-    <div style="margin-bottom: 12px;">
+    <!-- Folder Grid Header -->
+    <div id="folder-title" style="margin-bottom: 12px;">
         <h2 style="margin: 0; color: #122b49; font-size: 20px; font-weight: 700;">Folders (Categories)</h2>
     </div>
     
+    <!-- Folder Grid -->
     <div class="folder-grid">
         @foreach($categories as $category)
             <div class="folder-card" id="folder-card-{{ $category->id }}" onclick="window.location.href='/?category_id={{ $category->id }}'">
@@ -116,8 +129,8 @@
                 <h3 style="margin: 0; color: #122b49; display: flex; align-items: center; gap: 10px;">
                     <svg style="width: 24px; height: 24px; color: #bfa36b;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4z" clip-rule="evenodd"></path></svg>
                     <span>Folder: {{ $currentCategory->name }}</span>
-                    <span style="font-size: 14px; font-weight: 600; color: #bfa36b; background: #f5f1e6; padding: 2px 10px; border-radius: 12px; border: 1px solid #e5e0d4;">
-                        {{ $currentCategory->products->sum('quantity') }} pcs ({{ $currentCategory->products->count() }} items)
+                    <span id="active-category-badge" style="font-size: 14px; font-weight: 600; color: #bfa36b; background: #f5f1e6; padding: 2px 10px; border-radius: 12px; border: 1px solid #e5e0d4;">
+                        <span id="active-category-direct-pcs">{{ $currentCategory->products->sum('quantity') }}</span> pcs ({{ $currentCategory->products->count() }} items)
                     </span>
                 </h3>
                 
@@ -126,10 +139,6 @@
                         <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Add Product
                     </button>
-                    <div class="search-box">
-                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input type="text" class="category-search" data-category-id="{{ $currentCategory->id }}" placeholder="Search products..." onkeyup="filterTable(this)">
-                    </div>
                 </div>
             </div>
 
@@ -139,35 +148,43 @@
                         <tr>
                             <th style="width: 60px;">SL</th>
                             <th>Image</th>
+                            <th>Size</th>
                             <th>Buying Price (BDT)</th>
                             <th>Selling Price (BDT)</th>
-                            <th>Qty</th>
-                            <th style="text-align: right;">Actions</th>
+                            <th style="width: 180px;">Qty</th>
+                            <th>Rack No</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if($products->isEmpty())
                             <tr>
-                                <td colspan="6" style="text-align: center; color: #5c503b; font-style: italic; padding: 30px;">No products in this category folder. Click 'Add Product' to add one.</td>
+                                <td colspan="8" style="text-align: center; color: #5c503b; font-style: italic; padding: 30px;">No products in this category folder. Click 'Add Product' to add one.</td>
                             </tr>
                         @else
                             @foreach($products as $index => $product)
                             <tr>
-                                <td style="font-weight: 600; color: #bfa36b;">{{ $index + 1 }}</td>
+                                <td style="font-weight: 600; color: #000000;">{{ $index + 1 }}</td>
                                 <td>
                                     @if($product->image_path)
-                                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $currentCategory->name }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e0d4; display: block;" class="product-thumbnail" onclick="openLightbox('{{ asset('storage/' . $product->image_path) }}')">
+                                        <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $currentCategory->name }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e0d4; display: block; margin: 0 auto;" class="product-thumbnail" onclick="openLightbox('{{ asset('storage/' . $product->image_path) }}')">
                                     @else
-                                        <div style="width: 52px; height: 52px; background: #f5f1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #bfa36b; font-size: 11px; font-weight: 500; border: 1px dashed #e5e0d4;">No Image</div>
+                                        <div style="width: 52px; height: 52px; background: #f5f1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ad915a; font-size: 11px; font-weight: 500; border: 1px dashed #e5e0d4; margin: 0 auto;">No Image</div>
                                     @endif
                                 </td>
-                                <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->buying_price, 2) }}</td>
-                                <td style="font-weight: 600; color: #122b49;">৳{{ number_format($product->selling_price, 2) }}</td>
+                                <td style="font-weight: 600; color: #000000;">{{ $product->size ?: 'N/A' }}</td>
+                                <td style="font-weight: 600; color: #000000;">৳{{ number_format($product->buying_price, 2) }}</td>
+                                <td style="font-weight: 600; color: #000000;">৳{{ number_format($product->selling_price, 2) }}</td>
                                 <td>
-                                    <span style="display: inline-block; padding: 2px 8px; background: #f5f1e6; border-radius: 6px; font-weight: 500; color: #5c503b;">{{ $product->quantity }} pcs</span>
+                                    <div class="table-qty-stepper" style="display: inline-flex; align-items: center; border: 1px solid #dcd7ca; border-radius: 6px; overflow: hidden; background: #faf8f3; vertical-align: middle;">
+                                        <button type="button" class="table-stepper-btn minus" onclick="adjustTableQuantity({{ $product->id }}, -1)" style="width: 32px; height: 32px; border: none; background: #f5f1e6; color: #000000; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; transition: background 0.2s; padding: 0;">&minus;</button>
+                                        <span class="qty-val-{{ $product->id }}" style="min-width: 44px; text-align: center; font-weight: 600; color: #000000; font-size: 15px; padding: 0 4px;">{{ $product->quantity }}</span>
+                                        <button type="button" class="table-stepper-btn plus" onclick="adjustTableQuantity({{ $product->id }}, 1)" style="width: 32px; height: 32px; border: none; background: #f5f1e6; color: #000000; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; transition: background 0.2s; padding: 0;">&plus;</button>
+                                    </div>
                                 </td>
-                                <td style="text-align: right;">
-                                    <button class="btn-edit" onclick="openEditModal({{ $product->id }}, {{ $product->buying_price }}, {{ $product->selling_price }}, {{ $product->quantity }}, {{ $product->category_id }}, '{{ $product->image_path }}')">Edit</button>
+                                <td style="font-weight: 600; color: #000000;">{{ $product->rack_no ?: 'N/A' }}</td>
+                                <td>
+                                    <button class="btn-edit" onclick="openEditModal({{ $product->id }}, {{ $product->buying_price }}, {{ $product->selling_price }}, {{ $product->quantity }}, {{ $product->category_id }}, '{{ $product->image_path }}', '{{ addslashes($product->size) }}', '{{ addslashes($product->rack_no) }}')">Edit</button>
                                     <button class="btn-delete" onclick="openDeleteModal({{ $product->id }})">Delete</button>
                                 </td>
                             </tr>
@@ -179,7 +196,7 @@
         </div>
     @elseif($categories->isEmpty())
         <!-- Nothing at Root Explorer -->
-        <div class="card" style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: white;">
+        <div id="welcome-prompt" class="card" style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: white;">
             <svg style="width: 64px; height: 64px; color: #bfa36b; margin: 0 auto 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
             <h3 style="margin: 0 0 8px 0; color: #122b49; font-size: 18px;">Welcome to Tonny Cloth Store Explorer</h3>
             <p style="margin: 0 0 20px 0; color: #5c503b; font-size: 15px;">Create a folder category (like "থ্রি পিছ") to begin adding items.</p>
@@ -187,11 +204,71 @@
         </div>
     @else
         <!-- Welcome Prompt to open a folder -->
-        <div style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: #faf8f3;">
+        <div id="welcome-prompt" style="text-align: center; padding: 40px; border: 1px dashed #e5e0d4; border-radius: 12px; background: #faf8f3;">
             <svg style="width: 48px; height: 48px; color: #ad915a; margin: 0 auto 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5M5 19v-4m14 4v-5m0 0l-5-5m5 5H9"></path></svg>
             <h4 style="margin: 0; color: #122b49; font-size: 16px; font-weight: 600;">Double-click or Tap a folder category above to open its contents and manage products.</h4>
         </div>
     @endif
+
+    <!-- Global Search Results Container (Hidden by default) -->
+    <div class="card" id="global-search-results" style="display: none;">
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: #122b49; display: flex; align-items: center; gap: 8px;">
+            <svg style="width: 20px; height: 20px; color: #bfa36b;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span>Search Results</span>
+        </h3>
+        <div class="table-responsive">
+            <table class="product-table" id="global-search-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">SL</th>
+                        <th>Folder (Category)</th>
+                        <th>Size</th>
+                        <th>Buying Price (BDT)</th>
+                        <th>Selling Price (BDT)</th>
+                        <th style="width: 180px;">Qty</th>
+                        <th>Rack No</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($allProducts as $index => $product)
+                    <tr data-category-name="{{ strtolower($product->category->name) }}" data-size="{{ strtolower($product->size) }}" data-rack-no="{{ strtolower($product->rack_no) }}">
+                        <td style="font-weight: 600; color: #000000;">{{ $index + 1 }}</td>
+                        <td style="font-weight: 600; color: #000000;">
+                            <a href="/?category_id={{ $product->category_id }}" style="color: #000000; text-decoration: underline; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <svg style="width: 14px; height: 14px; color: #bfa36b;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4z" clip-rule="evenodd"></path></svg>
+                                {{ $product->category->name }}
+                            </a>
+                        </td>
+                        <td style="font-weight: 600; color: #000000;">{{ $product->size ?: 'N/A' }}</td>
+                        <td style="font-weight: 600; color: #000000;">৳{{ number_format($product->buying_price, 2) }}</td>
+                        <td style="font-weight: 600; color: #000000;">৳{{ number_format($product->selling_price, 2) }}</td>
+                        <td>
+                            <div class="table-qty-stepper" style="display: inline-flex; align-items: center; border: 1px solid #dcd7ca; border-radius: 6px; overflow: hidden; background: #faf8f3; vertical-align: middle;">
+                                <button type="button" class="table-stepper-btn minus" onclick="adjustTableQuantity({{ $product->id }}, -1)" style="width: 32px; height: 32px; border: none; background: #f5f1e6; color: #000000; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; transition: background 0.2s; padding: 0;">&minus;</button>
+                                <span class="qty-val-{{ $product->id }}" style="min-width: 44px; text-align: center; font-weight: 600; color: #000000; font-size: 15px; padding: 0 4px;">{{ $product->quantity }}</span>
+                                <button type="button" class="table-stepper-btn plus" onclick="adjustTableQuantity({{ $product->id }}, 1)" style="width: 32px; height: 32px; border: none; background: #f5f1e6; color: #000000; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; transition: background 0.2s; padding: 0;">&plus;</button>
+                            </div>
+                        </td>
+                        <td style="font-weight: 600; color: #000000;">{{ $product->rack_no ?: 'N/A' }}</td>
+                        <td>
+                            @if($product->image_path)
+                                <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->category->name }}" style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e0d4; display: block; margin: 0 auto;" class="product-thumbnail" onclick="openLightbox('{{ asset('storage/' . $product->image_path) }}')">
+                            @else
+                                <div style="width: 52px; height: 52px; background: #f5f1e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #ad915a; font-size: 11px; font-weight: 500; border: 1px dashed #e5e0d4; margin: 0 auto;">No Image</div>
+                            @endif
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="openEditModal({{ $product->id }}, {{ $product->buying_price }}, {{ $product->selling_price }}, {{ $product->quantity }}, {{ $product->category_id }}, '{{ $product->image_path }}', '{{ addslashes($product->size) }}', '{{ addslashes($product->rack_no) }}')">Edit</button>
+                            <button class="btn-delete" onclick="openDeleteModal({{ $product->id }})">Delete</button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Overlay & Modal Box -->
@@ -258,6 +335,14 @@
             <input type="text" id="addProductCategoryNameDisplay" disabled style="width: 100%; box-sizing: border-box; padding: 10px 14px; background: #e5e0d4; border-radius: 8px; font-weight: 600; color: #122b49; border: 1px solid #dcd7ca; font-size: 16px;">
         </div>
         <div class="form-group" style="margin-bottom: 16px;">
+            <label for="addSize" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Size (Optional)</label>
+            <input type="text" name="size" placeholder="e.g. XL, L, 38, 40">
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+            <label for="addRackNo" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Rack No (Optional)</label>
+            <input type="text" name="rack_no" id="addRackNo" placeholder="e.g. A-1, B-2">
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
             <label for="addBuyingPrice" style="display: block; font-size: 15px; font-weight: 500; color: #5c503b; margin-bottom: 6px;">Buying Price (BDT)</label>
             <input type="number" step="any" name="buying_price" placeholder="Buying Price (BDT)" required>
         </div>
@@ -308,6 +393,16 @@
         </div>
 
         <div class="form-group">
+            <label for="editSize">Size (Optional)</label>
+            <input type="text" name="size" id="editSize" placeholder="e.g. XL, L, 38, 40">
+        </div>
+
+        <div class="form-group">
+            <label for="editRackNo">Rack No (Optional)</label>
+            <input type="text" name="rack_no" id="editRackNo" placeholder="e.g. A-1, B-2">
+        </div>
+
+        <div class="form-group">
             <label for="editBuyingPrice">Buying Price (BDT)</label>
             <input type="number" step="0.01" name="buying_price" id="editBuyingPrice" required>
         </div>
@@ -319,7 +414,11 @@
 
         <div class="form-group">
             <label for="editQuantity">Quantity</label>
-            <input type="number" name="quantity" id="editQuantity" required>
+            <div class="quantity-stepper" style="display: flex; align-items: center; max-width: 180px; border: 1px solid #dcd7ca; border-radius: 8px; overflow: hidden; background: #faf8f3;">
+                <button type="button" class="stepper-btn minus" onclick="decrementQuantity()" style="width: 46px; height: 46px; border: none; background: #f5f1e6; color: #122b49; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; outline: none;">&minus;</button>
+                <input type="number" name="quantity" id="editQuantity" required style="flex: 1; border: none; text-align: center; font-size: 16px; font-weight: 600; color: #122b49; background: transparent; height: 46px; width: 100%; margin: 0; padding: 0; -moz-appearance: textfield; outline: none;" min="0">
+                <button type="button" class="stepper-btn plus" onclick="incrementQuantity()" style="width: 46px; height: 46px; border: none; background: #f5f1e6; color: #122b49; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; outline: none;">&plus;</button>
+            </div>
         </div>
 
         <div class="form-group">
@@ -362,17 +461,114 @@
 </div>
 
 <script>
-// Function to filter products inside active tables
-function filterTable(inputElement) {
-    let input = inputElement.value.toLowerCase();
-    let categoryId = inputElement.getAttribute("data-category-id");
-    let rows = document.querySelectorAll(`#product-table-${categoryId} tbody tr`);
+// AJAX dynamic quantity updates inside tables
+function adjustTableQuantity(productId, delta) {
+    const qtyElements = document.querySelectorAll(`.qty-val-${productId}`);
+    if (qtyElements.length === 0) return;
     
-    rows.forEach(row => {
-        if(row.cells.length > 1) {
-            row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
+    let currentQty = parseInt(qtyElements[0].innerText) || 0;
+    let newQty = currentQty + delta;
+    if (newQty < 0) return;
+
+    fetch(`/products/${productId}/quantity`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update quantity display for all instances of this product on the screen
+            document.querySelectorAll(`.qty-val-${productId}`).forEach(elem => {
+                elem.innerText = data.quantity;
+            });
+            
+            // Update global header total count badge
+            const totalBadge = document.querySelector(".total-products-badge .badge-count");
+            if (totalBadge) totalBadge.innerText = data.total_quantity;
+ 
+            // Update global header total buying price badge
+            const totalBuyingPriceBadgeCount = document.querySelector(".total-buying-price-badge .badge-count");
+            if (totalBuyingPriceBadgeCount) {
+                totalBuyingPriceBadgeCount.innerText = '৳' + parseFloat(data.total_buying_price).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            // Update active category folder header direct pcs count badge
+            const activeDirectBadge = document.getElementById("active-category-direct-pcs");
+            if (activeDirectBadge) {
+                activeDirectBadge.innerText = data.active_category_direct_sum;
+            }
+
+            // Update all folder card meta values recursively
+            for (const [catId, qty] of Object.entries(data.categories)) {
+                const metaElem = document.querySelector(`#folder-card-${catId} .folder-meta`);
+                if (metaElem) {
+                    metaElem.innerText = qty + " pcs";
+                }
+            }
         }
+    })
+    .catch(error => {
+        console.error("Error updating quantity:", error);
     });
+}
+
+// Global Search handler
+function performGlobalSearch(inputElement) {
+    let query = inputElement.value.toLowerCase().trim();
+    
+    const folderGrid = document.querySelector(".folder-grid");
+    const folderTitle = document.getElementById("folder-title");
+    const activeContainer = document.querySelector(".active-category-container");
+    const welcomePrompt = document.getElementById("welcome-prompt");
+    const breadcrumbNav = document.getElementById("breadcrumb-navigation");
+    const searchResults = document.getElementById("global-search-results");
+    
+    if (query === "") {
+        // Restore standard view
+        if (folderGrid) folderGrid.style.display = "grid";
+        if (folderTitle) folderTitle.style.display = "block";
+        if (activeContainer) activeContainer.style.display = "block";
+        if (welcomePrompt) welcomePrompt.style.display = "block";
+        if (breadcrumbNav) breadcrumbNav.style.display = "flex";
+        if (searchResults) searchResults.style.display = "none";
+    } else {
+        // Hide standard folders/breadcrumbs
+        if (folderGrid) folderGrid.style.display = "none";
+        if (folderTitle) folderTitle.style.display = "none";
+        if (activeContainer) activeContainer.style.display = "none";
+        if (welcomePrompt) welcomePrompt.style.display = "none";
+        if (breadcrumbNav) breadcrumbNav.style.display = "none";
+        if (searchResults) searchResults.style.display = "block";
+        
+        // Filter rows
+        let rows = document.querySelectorAll("#global-search-table tbody tr:not(#global-search-empty)");
+        let matchCount = 0;
+        rows.forEach(row => {
+            let catName = row.getAttribute("data-category-name");
+            let size = row.getAttribute("data-size");
+            let rackNo = row.getAttribute("data-rack-no") || '';
+            if (catName.includes(query) || size.includes(query) || rackNo.includes(query)) {
+                row.style.display = "";
+                matchCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+        
+        // Manage empty message
+        let emptyRow = document.getElementById("global-search-empty");
+        if (!emptyRow) {
+            emptyRow = document.createElement("tr");
+            emptyRow.id = "global-search-empty";
+            emptyRow.innerHTML = `<td colspan="8" style="text-align: center; color: #5c503b; font-style: italic; padding: 30px;">No matching products found.</td>`;
+            document.querySelector("#global-search-table tbody").appendChild(emptyRow);
+        }
+        emptyRow.style.display = (matchCount === 0) ? "" : "none";
+    }
 }
 
 function updateAddFileName(input) {
@@ -440,13 +636,15 @@ function closeAddProductModal() {
     document.getElementById("addProductModal").style.display = "none";
 }
 
-function openEditModal(id, buyingPrice, sellingPrice, quantity, categoryId, imagePath) {
+function openEditModal(id, buyingPrice, sellingPrice, quantity, categoryId, imagePath, size, rackNo) {
     document.getElementById("modalOverlay").style.display = "block";
     document.getElementById("editModal").style.display = "block";
     document.getElementById("editBuyingPrice").value = buyingPrice;
     document.getElementById("editSellingPrice").value = sellingPrice;
     document.getElementById("editQuantity").value = quantity;
     document.getElementById("editCategory").value = categoryId;
+    document.getElementById("editSize").value = size || '';
+    document.getElementById("editRackNo").value = rackNo || '';
     document.getElementById("editForm").action = `/products/${id}`;
     
     document.getElementById("editImage").value = "";
@@ -484,6 +682,19 @@ function openDeleteModal(id) {
     document.getElementById("modalOverlay").style.display = "block";
     document.getElementById("deleteModal").style.display = "block";
     document.getElementById("deleteForm").action = `/products/${id}`;
+}
+
+// Function to filter products inside local active tables (fallback/local filtering)
+function filterTable(inputElement) {
+    let input = inputElement.value.toLowerCase();
+    let categoryId = inputElement.getAttribute("data-category-id");
+    let rows = document.querySelectorAll(`#product-table-${categoryId} tbody tr`);
+    
+    rows.forEach(row => {
+        if(row.cells.length > 1) {
+            row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
+        }
+    });
 }
 
 function closeDeleteModal() {
@@ -550,6 +761,20 @@ function closeLightbox() {
     setTimeout(() => {
         lightbox.style.display = "none";
     }, 300);
+}
+
+function decrementQuantity() {
+    const input = document.getElementById("editQuantity");
+    let val = parseInt(input.value) || 0;
+    if (val > 0) {
+        input.value = val - 1;
+    }
+}
+
+function incrementQuantity() {
+    const input = document.getElementById("editQuantity");
+    let val = parseInt(input.value) || 0;
+    input.value = val + 1;
 }
 </script>
 </body>
